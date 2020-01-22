@@ -107,6 +107,7 @@ async function handleDeleteRequest(req, res) {
     ).populate({
       path: 'products.product',
       model: 'Product',
+      model: Product,
     });
 
     res.status(200).json(cart.products);
