@@ -1,4 +1,4 @@
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 
 const { ObjectId, Number } = mongoose.Schema.Types;
 const CartSchema = new mongoose.Schema({
