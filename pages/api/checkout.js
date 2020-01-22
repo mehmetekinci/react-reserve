@@ -3,6 +3,7 @@ import uuidv4 from 'uuid/v4';
 import jwt from 'jsonwebtoken';
 import Cart from '../../models/Cart';
 import Order from '../../models/Order';
+import Product from '../../models/Product';
 import calculateCartTotal from '../../utils/calculateCartTotal';
 import connectDb from '../../utils/connectDb';
 
@@ -24,6 +25,7 @@ export default async (req, res) => {
     const cart = await Cart.findOneAndUpdate({ user: userId }).populate({
       path: 'products.product',
       model: 'Product',
+      model: Product,
     });
 
     // 3) calculate cart totals again from cart products
