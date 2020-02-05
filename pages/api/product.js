@@ -1,7 +1,7 @@
 import Product from '../../models/Product';
 import Cart from '../../models/Cart';
-
 import connectDb from '../../utils/connectDb';
+import Rating from '../../models/Rating';
 
 connectDb();
 
@@ -24,7 +24,10 @@ export default async (req, res) => {
 
 async function handleGetRequest(req, res) {
   const { _id } = req.query;
-  const product = await Product.findOne({ _id });
+  const product = await Product.findOne({ _id }).populate({
+    path: 'ratings',
+    model: Rating,
+  });
   res.status(200).json(product);
 }
 
@@ -49,10 +52,12 @@ async function handlePostRequest(req, res) {
 
 async function handleDeleteRequest(req, res) {
   const { _id } = req.query;
+
   try {
-    // 1) delete product by id
+    // 1) Delete product by id
     await Product.findOneAndDelete({ _id });
-    //2) remove product from all carts, referenced as product
+
+    // 2) Remove from all carts, referenced as "product"
     await Cart.updateMany(
       { 'products.product': _id },
       { $pull: { products: { product: _id } } },

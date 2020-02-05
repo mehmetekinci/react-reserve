@@ -17,9 +17,7 @@ function CartItemList({ products, user, handleRemoveFromCart, success }) {
       header: (
         <Item.Header
           as="a"
-          onClick={() => {
-            router.push(`/product?_id=${p.product._id}`);
-          }}
+          onClick={() => router.push(`/product?_id=${p.product._id}`)}
         >
           {p.product.name}
         </Item.Header>

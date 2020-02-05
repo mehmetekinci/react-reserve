@@ -1,12 +1,13 @@
 import React from 'react';
+import { logEvent } from '../../utils/analytics';
 import { Input } from 'semantic-ui-react';
 import { useRouter } from 'next/router';
 import axios from 'axios';
 import baseUrl from '../../utils/baseUrl';
 import catchErrors from '../../utils/catchErrors';
-import cookies from 'js-cookie';
+import cookie from 'js-cookie';
 
-function AddProductToCart({ user, productId }) {
+function AddProductToCart({ user, productId, name }) {
   const [quantity, setQuantity] = React.useState(1);
   const [loading, setLoading] = React.useState(false);
   const [success, setSuccess] = React.useState(false);
@@ -17,7 +18,6 @@ function AddProductToCart({ user, productId }) {
     if (success) {
       timeout = setTimeout(() => setSuccess(false), 3000);
     }
-
     return () => {
       clearTimeout(timeout);
     };
@@ -25,15 +25,20 @@ function AddProductToCart({ user, productId }) {
 
   async function handleAddProductToCart() {
     try {
+      logEvent(
+        'User',
+        `User ${user.name} added product ${name} to their cart`,
+        'Product',
+      );
+
       setLoading(true);
       const url = `${baseUrl}/api/cart`;
       const payload = { quantity, productId };
-      const token = cookies.get('token');
+      const token = cookie.get('token');
       const headers = { headers: { Authorization: token } };
       await axios.put(url, payload, headers);
       setSuccess(true);
     } catch (error) {
-      console.error(error);
       catchErrors(error, window.alert);
     } finally {
       setLoading(false);
@@ -44,9 +49,9 @@ function AddProductToCart({ user, productId }) {
     <Input
       type="number"
       min="1"
+      placeholder="Quantity"
       value={quantity}
       onChange={event => setQuantity(Number(event.target.value))}
-      placeholder="Quantity"
       action={
         user && success
           ? {
@@ -62,17 +67,13 @@ function AddProductToCart({ user, productId }) {
               icon: 'plus cart',
               loading,
               disabled: loading,
-              onClick: () => {
-                handleAddProductToCart();
-              },
+              onClick: handleAddProductToCart,
             }
           : {
               color: 'blue',
               content: 'Sign Up To Purchase',
               icon: 'signup',
-              onClick: () => {
-                router.push('/signup');
-              },
+              onClick: () => router.push('/signup'),
             }
       }
     />

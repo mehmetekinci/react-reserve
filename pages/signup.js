@@ -1,26 +1,26 @@
 import React from 'react';
 import { Button, Form, Icon, Message, Segment } from 'semantic-ui-react';
 import Link from 'next/link';
-import catchErrors from '../utils/catchErrors';
 import axios from 'axios';
+import { logEvent } from '../utils/analytics';
+import catchErrors from '../utils/catchErrors';
 import baseUrl from '../utils/baseUrl';
 import { handleLogin } from '../utils/auth';
 
-const INITAL_USER = {
+const INITIAL_USER = {
   name: '',
   email: '',
   password: '',
 };
 
 function Signup() {
-  const [user, setUser] = React.useState(INITAL_USER);
+  const [user, setUser] = React.useState(INITIAL_USER);
   const [disabled, setDisabled] = React.useState(true);
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState('');
 
   React.useEffect(() => {
     const isUser = Object.values(user).every(el => Boolean(el));
-
     isUser ? setDisabled(false) : setDisabled(true);
   }, [user]);
 
@@ -31,15 +31,15 @@ function Signup() {
 
   async function handleSubmit(event) {
     event.preventDefault();
+
     try {
       setLoading(true);
       setError('');
       const url = `${baseUrl}/api/signup`;
-      const { name, email, password } = user;
       const payload = { ...user };
       const response = await axios.post(url, payload);
       handleLogin(response.data);
-      //make request to signup user
+      logEvent('User', 'Created an Account');
     } catch (error) {
       catchErrors(error, setError);
     } finally {

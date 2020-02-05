@@ -1,27 +1,41 @@
+// import products from "../../static/products.json";
 import Product from '../../models/Product';
 import connectDb from '../../utils/connectDb';
+import Rating from '../../models/Rating';
 
 connectDb();
 
 export default async (req, res) => {
   const { page, size } = req.query;
-  // convert querystring values to numbers
+
+  // convert query string value to numbers:
   const pageNum = Number(page);
   const pageSize = Number(size);
   let products = [];
   const totalDocs = await Product.countDocuments();
   const totalPages = Math.ceil(totalDocs / pageSize);
+
+  // get number of product in page 1:
   if (pageNum === 1) {
     products = await Product.find()
       .sort({ name: 'asc' })
-      .limit(pageSize);
+      .limit(pageSize)
+      .populate({
+        path: 'ratings',
+        model: Rating,
+      });
   } else {
+    // get get the rest of pages
     const skips = pageSize * (pageNum - 1);
     products = await Product.find()
-      .sort({ name: 'asc' })
       .skip(skips)
-      .limit(pageSize);
+      .limit(pageSize)
+      .populate({
+        path: 'ratings',
+        model: Rating,
+      });
   }
+
   // const products = await Product.find();
   res.status(200).json({ products, totalPages });
 };

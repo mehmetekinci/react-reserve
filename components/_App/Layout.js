@@ -1,10 +1,19 @@
 import Head from 'next/head';
+import { useEffect } from 'react';
+import { initGA, logPageView } from '../../utils/analytics';
 import { Container } from 'semantic-ui-react';
 
 import Header from './Header';
 import HeadContent from './HeadContent';
 
 function Layout({ children, user }) {
+  useEffect(() => {
+    if (!window.GA_INITIALIZED) {
+      initGA();
+      window.GA_INITIALIZED = true;
+    }
+    logPageView();
+  }, []);
   return (
     <>
       <Head>
